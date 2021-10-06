@@ -7,7 +7,16 @@ const { beforeDestroy, beforeBulkDestroy } = require('../../models/Product');
 router.get('/', (req, res) => {
   // find all categories
   // be sure to include its associated Products
-  Category.findAll();
+  Category.findAll(
+    {
+      include: [Product]
+    }
+  ).then((categoryData) => {
+    res.json(categoryData)
+  })
+    .catch(error => {
+      res.status(500).json(error)
+    })
 });
 
 router.get('/:id', (req, res) => {
@@ -15,36 +24,64 @@ router.get('/:id', (req, res) => {
   // be sure to include its associated Products
   Category.findOne(
     {
-      category_name: req.body.category_name,
-    },
-    {
-    where: {
-      id: req.params.id,
-    }
-  })
+      where: {
+        id: req.params.id,
+      },
+      include: [Product]
+    })
+    .then((categoryData) => {
+      res.json(categoryData)
+    })
+    .catch(error => {
+      res.status(500).json(error)
+    });
 });
 
 router.post('/', (req, res) => {
   // create a new category
-  Category.create(
-    {
-      id: req.body.id,
-      category_name: req.body.category_name,
-    }
-  )
+  Category.create(req.body)
+    .then((newCategory) => {
+      res.json(newCategory)
+    })
+    .catch(error => {
+      res.status(500).json(error)
+    });
 });
 
 router.put('/:id', (req, res) => {
   // update a category by its `id` value
-  Category.update({
-    where:{
-      id: req.params.id,
-    }
-  })
+  Category.update(
+    {
+      category_name: req.body.category_name,
+    },
+    {
+      where: {
+        id: req.params.id,
+      }
+    })
+    .then((updatedCategory) => {
+      res.json(updatedCategory)
+    })
+    .catch(error => {
+      res.status(500).json(error)
+    });
 });
 
 router.delete('/:id', (req, res) => {
   // delete a category by its `id` value
+  Category.destroy(
+    {
+      where: {
+        id: req.params.id,
+      }
+    }
+  )
+  .then((deletedCategory) => {
+    res.json(deletedCategory)
+  })
+  .catch(error => {
+    res.status(500).json(error)
+  });
 });
 
 module.exports = router;
